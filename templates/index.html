@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X-ray Classification</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+    <div id="app" class="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-8">
+                
+                <div class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4">
+                    <img src="/static/images/logo.png" alt="Logo" class="h-28 w-auto rounded-full">
+                    <div class="text-center md:text-left">
+                        <h1 class="text-3xl font-bold text-gray-900 mb-2">
+                            Chest X-ray 肺炎偵測模型
+                        </h1>
+                        <p class="text-gray-600">
+                            使用深度學習模型來偵測肺炎的 X-ray 影像
+                        </p>
+                        <p class="text-gray-600">
+                            成功大學人工智慧與醫學及人工智慧於醫療應用與服務第五組
+                        </p>
+                    </div>
+                </div>
+                
+                
+            </div>
+            
+            
+            <!-- Compact Model Info with Toggle -->
+            <div class="bg-white shadow-sm rounded-lg p-6 mb-8">
+                <!-- Summary Row -->
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-8">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm text-gray-500">Accuracy:</span>
+                            <span class="text-lg font-semibold text-green-600">94.55%</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm text-gray-500">F1 Score:</span>
+                            <span class="text-lg font-semibold text-blue-600">94.56%</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Toggle Button -->
+                    <button 
+                        @click="toggleDetails"
+                        class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md focus:outline-none transition-colors"
+                    >
+                        <span v-if="showDetails">Hide Details</span>
+                        <span v-else>Show Details</span>
+                        <svg 
+                            :class="{'rotate-180': showDetails}"
+                            class="ml-1.5 w-4 h-4 transition-transform duration-200"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Detailed Metrics -->
+                <transition
+                    enter-active-class="transition-all duration-300 ease-out"
+                    enter-from-class="opacity-0 max-h-0"
+                    enter-to-class="opacity-100 max-h-96"
+                    leave-active-class="transition-all duration-200 ease-in"
+                    leave-from-class="opacity-100 max-h-96"
+                    leave-to-class="opacity-0 max-h-0"
+                >
+                    <div v-if="showDetails" class="overflow-hidden">
+                        <!-- Dataset Information -->
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mx-auto max-w-2xl">
+                            <h2 class="text-sm font-medium text-blue-800 mb-2">關於資料集</h2>
+                            <p class="text-sm text-blue-700">
+                                本模型使用來自廣州婦女兒童醫療中心的5,856張兒童胸部X光影像進行訓練。包含1,583張正常影像和4,273張肺炎影像，這些影像經由專業醫師確診並標註。
+                                </p>
+                            <div class="mt-2 flex justify-center gap-4 text-xs text-blue-600">
+                                <span>訓練集: 5,232 影像</span>
+                                <span>驗證集: 16 影像</span>
+                                <span>測試集: 624 影像</span>
+                            </div>
+                            <div>
+                                
+                                <a href="https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia" class="text-blue-600 hover:underline flex items-center space-x-1">
+                                    <i class="fas fa-link mr-2"></i>
+                                    <span>Kaggle</span>
+                                </a>
+                                <a href="https://www.cell.com/cell/fulltext/S0092-8674(18)30154-5" class="text-blue-600 hover:underline flex items-center space-x-1">
+                                    <i class="fas fa-link mr-2"></i>
+                                    <span>Identifying Medical Diagnoses and Treatable Diseases by Image-Based Deep Learning. 
+                                        Kermany, Daniel S. et al.
+                                        Cell, Volume 172, Issue 5, 1122 - 1131.e9, February 22, 2018</span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="border-t pt-4">
+                            <div class="grid grid-cols-3 gap-4">
+                                <div class="bg-gray-50 p-3 rounded-lg">
+                                    <div class="text-sm font-medium text-gray-600">Precision</div>
+                                    <div class="text-lg font-bold text-gray-900">94.60%</div>
+                                    <div class="text-xs text-gray-500">True positive rate</div>
+                                </div>
+                                <div class="bg-gray-50 p-3 rounded-lg">
+                                    <div class="text-sm font-medium text-gray-600">Recall</div>
+                                    <div class="text-lg font-bold text-gray-900">94.55%</div>
+                                    <div class="text-xs text-gray-500">Sensitivity</div>
+                                </div>
+                                <div class="bg-gray-50 p-3 rounded-lg">
+                                    <div class="text-sm font-medium text-gray-600">Specificity</div>
+                                    <div class="text-lg font-bold text-gray-900">94.02%</div>
+                                    <div class="text-xs text-gray-500">True negative rate</div>
+                                </div>
+                            </div>
+                            <div class="mt-4 text-sm text-gray-600">
+                                <p class="mb-2">Model Architecture: EfficientNet B0</p>
+                                <ul class="list-disc pl-5 text-gray-500">
+                                    <li>Pre-trained on ImageNet dataset</li>
+                                    <li>Validation Accuracy: 100%, AUC: 98.38%</li>
+                                    <li>Training Loss: 0.073, Training Accuracy: 97.64%</li>
+                                </ul>
+                            </div>
+                            <!-- confusion matrix and ROC curve images in 2 columns -->
+                            <div class="grid grid-cols-2 gap-4 mt-4">
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-600 mb-2">Confusion Matrix</h3>
+                                    <img src="/static/images/cm.png" alt="Confusion Matrix" class="w-full rounded-lg shadow-md">
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-600 mb-2">ROC Curve</h3>
+                                    <img src="static/images/roc.png" alt="ROC Curve" class="w-full rounded-lg shadow-md">
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </transition>
+            </div>
+
+            <div class="bg-white shadow-xl rounded-lg p-6">
+                <!-- Upload Section -->
+                <div class="mb-8">
+                    <div class="flex justify-center">
+                        <div class="w-full" v-if="!imageUrl">
+                            <label 
+                                class="flex flex-col items-center px-4 py-6 bg-gray-50 text-gray-500 rounded-lg border-2 border-dashed border-gray-300 cursor-pointer hover:bg-gray-100"
+                                :class="{ 'border-blue-500': isDragging }"
+                                @dragover.prevent="isDragging = true"
+                                @dragleave.prevent="isDragging = false"
+                                @drop.prevent="handleDrop"
+                            >
+                                <div  class="text-center">
+                                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    <p class="mt-1">將影像拖曳至此或點擊上傳</p>
+                                </div>
+                                <input 
+                                    type="file" 
+                                    class="hidden" 
+                                    accept="image/*" 
+                                    @change="handleFileSelect"
+                                    ref="fileInput"
+                                >
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview and Results Section -->
+                <div v-if="imageUrl || resultUrl" class="space-y-6">
+                    
+                    <!-- Actions -->
+                    <div class="flex justify-center space-x-4">
+                        <button 
+                            @click="clearImages"
+                            class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none"
+                        >
+                            清除
+                        </button>
+                        <button 
+                            v-if="imageUrl && !isLoading"
+                            @click="predict"
+                            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none"
+                        >
+                            預測影像
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Original Image -->
+                        <div v-if="imageUrl" class="flex flex-col items-center">
+                            <h3 class="text-lg font-medium text-gray-900 mb-2">Original Image</h3>
+                            <img :src="imageUrl" alt="Original" class="max-w-full h-auto rounded-lg shadow-md">
+                        </div>
+
+                        <!-- Result Image -->
+                        <div v-if="resultUrl" class="flex flex-col items-center">
+                            <h3 class="text-lg font-medium text-gray-900 mb-2">Classification Result</h3>
+                            <img :src="resultUrl" alt="Result" class="max-w-full h-auto rounded-lg shadow-md">
+                        </div>
+                    </div>
+
+                    <!-- Loading State -->
+                    <div v-if="isLoading" class="flex justify-center">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                imageUrl: null,
+                resultUrl: null,
+                isLoading: false,
+                isDragging: false,
+                selectedFile: null,
+                showDetails: false
+            },
+            methods: {
+                toggleDetails() {
+                    this.showDetails = !this.showDetails;
+                },
+                handleFileSelect(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        this.processFile(file);
+                    }
+                },
+                handleDrop(event) {
+                    this.isDragging = false;
+                    const file = event.dataTransfer.files[0];
+                    if (file) {
+                        this.processFile(file);
+                    }
+                },
+                processFile(file) {
+                    if (file.type.startsWith('image/')) {
+                        this.selectedFile = file;
+                        this.imageUrl = URL.createObjectURL(file);
+                        this.resultUrl = null;
+                    } else {
+                        alert('Please upload an image file');
+                    }
+                },
+                predict() {
+                    if (!this.selectedFile) return;
+
+                    this.isLoading = true;
+                    const formData = new FormData();
+                    formData.append('file', this.selectedFile);
+
+                    axios.post('/predict', formData, {
+                        responseType: 'blob'
+                    })
+                    .then(response => {
+                        this.resultUrl = URL.createObjectURL(response.data);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error processing image');
+                    })
+                    .finally(() => {
+                        this.isLoading = false;
+                    });
+                },
+                clearImages() {
+                    this.imageUrl = null;
+                    this.resultUrl = null;
+                    this.selectedFile = null;
+                    this.$refs.fileInput.value = '';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
