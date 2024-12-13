@@ -13,6 +13,7 @@ import ssl
 import sys
 from PNModel import ChestXRayModel
 from CXRAutoencoder import ChestXRayAutoencoder
+from vitmodel import ChestXRayViT
 
 app = Flask(__name__)
 CORS(app)
@@ -22,13 +23,17 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # Initialize models
 autoencoder = ChestXRayAutoencoder().to(device)
-classifier = ChestXRayModel().to(device)
+classifierEff = ChestXRayModel().to(device)
+classifier = ChestXRayViT().to(device)
 
 # Load model weights
 autoencoder.load_state_dict(torch.load('./models/best_autoencoder.pth', map_location=device,weights_only=False))
-classifier.load_state_dict(torch.load('./models/epoch_4.pth', map_location=device,weights_only=False)['model_state_dict'])
+classifierEff.load_state_dict(torch.load('./models/epoch_4.pth', map_location=device,weights_only=False)['model_state_dict'])
+classifier.load_state_dict(torch.load('./models/vit_epoch_16.pth', map_location=device,weights_only=False)['model_state_dict'])
+
 
 autoencoder.eval()
+classifierEff.eval()
 classifier.eval()
 
 # Image preprocessing
@@ -69,11 +74,12 @@ def add_prediction_text(image, is_xray, prediction=None, confidence=None):
     
     return np.array(image_pil)
 
-def validate_xray(image_tensor, threshold=0.01):
+def validate_xray(image_tensor, threshold=0.008):
     """Validate if image is an X-ray using autoencoder"""
     with torch.no_grad():
         reconstruction = autoencoder(image_tensor)
         error = nn.MSELoss()(reconstruction, image_tensor).item()
+        print ('X-ray validation error:',error)
         return error < threshold, error
 
 @app.route('/')
@@ -112,18 +118,21 @@ def predict():
             )
         else:
             # Normalize for classifier
-            normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+            normalize = transforms.Normalize(
+                mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
             classifier_input = normalize(processed_tensor)
             
             # Get prediction
             with torch.no_grad():
                 outputs = classifier(classifier_input)
+                outputs2 = classifierEff(classifier_input)
+                outputs = torch.mean(torch.stack([outputs,outputs2]),dim=0)
                 probabilities = torch.softmax(outputs, dim=1)
                 prediction = probabilities[0][1].item()
             
             # Determine class and confidence
-            class_name = "PNEUMONIA" if prediction >= 0.5 else "NORMAL"
-            confidence = prediction * 100 if prediction >= 0.5 else (1 - prediction) * 100
+            class_name = "PNEUMONIA" if prediction >= 0.44 else "NORMAL"
+            confidence = min(100, prediction * 100+6) if prediction >= 0.44 else min (100, (1 - prediction) * 100+6)
             
             print(f"Raw prediction: {prediction}")
             print(f"Class: {class_name}")

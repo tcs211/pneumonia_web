@@ -90,10 +90,15 @@ def train_autoencoder(train_df, valid_df, num_epochs=20, batch_size=32, latent_d
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
     
-    # Data transforms
+    # Data transforms - note ToTensor() is now before RandomErasing
     transform = transforms.Compose([
         transforms.Resize((224, 224)),
-        transforms.ToTensor()
+        transforms.RandomHorizontalFlip(),
+        transforms.RandomRotation(10),
+        transforms.RandomAffine(0, shear=10, scale=(0.8, 1.2)),
+        transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2),
+        transforms.ToTensor(),  # Convert to tensor first
+        transforms.RandomErasing(p=0.5, scale=(0.02, 0.33))  # Now works on tensor
     ])
     
     # Create datasets and dataloaders
@@ -218,3 +223,4 @@ def test_on_external_dataset(model, xray_test_df, non_xray_dir):
     plt.close()
     
     return roc_auc, xray_errors, non_xray_errors
+    

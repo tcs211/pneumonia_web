@@ -21,7 +21,7 @@
                             Chest X-ray 肺炎偵測模型
                         </h1>
                         <p class="text-gray-600">
-                            使用深度學習模型來偵測肺炎的 X-ray 影像
+                            使用深度學習模型(EfficientNet + Vision Transformer)偵測肺炎
                         </p>
                         <p class="text-gray-600">
                             成功大學人工智慧與醫學及人工智慧於醫療應用與服務第五組
@@ -34,30 +34,35 @@
             
             
             <!-- Compact Model Info with Toggle -->
-            <div class="bg-white shadow-sm rounded-lg p-6 mb-8">
+             <!-- Accuracy: 0.9583
+Precision: 0.9691
+Recall: 0.9641
+Specificity: 0.9487
+F1 Score: 0.9666 -->
+            <div class="bg-white shadow-lg rounded-xl p-8 mb-8 border border-gray-100">
                 <!-- Summary Row -->
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center space-x-8">
-                        <div class="flex items-center space-x-2">
-                            <span class="text-sm text-gray-500">Accuracy:</span>
-                            <span class="text-lg font-semibold text-green-600">94.55%</span>
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center space-x-12">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-sm font-medium text-gray-600">Accuracy:</span>
+                            <span class="text-xl font-semibold text-green-600">95.83%</span>
                         </div>
-                        <div class="flex items-center space-x-2">
-                            <span class="text-sm text-gray-500">F1 Score:</span>
-                            <span class="text-lg font-semibold text-blue-600">94.56%</span>
+                        <div class="flex items-center space-x-3">
+                            <span class="text-sm font-medium text-gray-600">F1 Score:</span>
+                            <span class="text-xl font-semibold text-blue-600">96.67%</span>
                         </div>
                     </div>
                     
                     <!-- Toggle Button -->
                     <button 
                         @click="toggleDetails"
-                        class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md focus:outline-none transition-colors"
+                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300 transition-colors"
                     >
                         <span v-if="showDetails">Hide Details</span>
                         <span v-else>Show Details</span>
                         <svg 
                             :class="{'rotate-180': showDetails}"
-                            class="ml-1.5 w-4 h-4 transition-transform duration-200"
+                            class="ml-2 w-4 h-4 transition-transform duration-200"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -71,65 +76,72 @@
                 <transition
                     enter-active-class="transition-all duration-300 ease-out"
                     enter-from-class="opacity-0 max-h-0"
-                    enter-to-class="opacity-100 max-h-96"
+                    enter-to-class="opacity-100 max-h-[800px]"
                     leave-active-class="transition-all duration-200 ease-in"
-                    leave-from-class="opacity-100 max-h-96"
+                    leave-from-class="opacity-100 max-h-[800px]"
                     leave-to-class="opacity-0 max-h-0"
                 >
-                    <div v-if="showDetails" class="overflow-hidden">
+                    <div v-if="showDetails" class="space-y-6 overflow-hidden">
                         <!-- Dataset Information -->
-                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mx-auto max-w-2xl">
-                            <h2 class="text-sm font-medium text-blue-800 mb-2">關於資料集</h2>
-                            <p class="text-sm text-blue-700">
+                        <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
+                            <h2 class="text-sm font-medium text-blue-800 mb-3">關於資料集</h2>
+                            <p class="text-sm leading-relaxed text-blue-700 mb-4">
                                 本模型使用來自廣州婦女兒童醫療中心的5,856張兒童胸部X光影像進行訓練。包含1,583張正常影像和4,273張肺炎影像，這些影像經由專業醫師確診並標註。
-                                </p>
-                            <div class="mt-2 flex justify-center gap-4 text-xs text-blue-600">
+                            </p>
+                            <div class="mt-3 flex justify-center gap-6 text-xs text-blue-600">
                                 <span>訓練集: 5,232 影像</span>
                                 <span>驗證集: 16 影像</span>
                                 <span>測試集: 624 影像</span>
                             </div>
-                            <div>
-                                
-                                <a href="https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia" class="text-blue-600 hover:underline flex items-center space-x-1">
-                                    <i class="fas fa-link mr-2"></i>
+                            <div class="mt-4 space-y-2">
+                                <a href="https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia" 
+                                class="text-blue-600 hover:underline flex items-center space-x-2">
+                                    <i class="fas fa-link"></i>
                                     <span>Kaggle</span>
                                 </a>
-                                <a href="https://www.cell.com/cell/fulltext/S0092-8674(18)30154-5" class="text-blue-600 hover:underline flex items-center space-x-1">
-                                    <i class="fas fa-link mr-2"></i>
+                                <a href="https://www.cell.com/cell/fulltext/S0092-8674(18)30154-5" 
+                                class="text-blue-600 hover:underline flex items-center space-x-2">
+                                    <i class="fas fa-link"></i>
                                     <span>Identifying Medical Diagnoses and Treatable Diseases by Image-Based Deep Learning. 
                                         Kermany, Daniel S. et al.
                                         Cell, Volume 172, Issue 5, 1122 - 1131.e9, February 22, 2018</span>
                                 </a>
                             </div>
                         </div>
-                        <div class="border-t pt-4">
-                            <div class="grid grid-cols-3 gap-4">
-                                <div class="bg-gray-50 p-3 rounded-lg">
+
+                        <div class="border-t pt-6">
+                            <div class="grid grid-cols-3 gap-6">
+                                <div class="bg-gray-50 p-4 rounded-lg shadow-sm">
                                     <div class="text-sm font-medium text-gray-600">Precision</div>
-                                    <div class="text-lg font-bold text-gray-900">94.60%</div>
+                                    <div class="text-lg font-bold text-gray-900">96.91%</div>
                                     <div class="text-xs text-gray-500">True positive rate</div>
                                 </div>
-                                <div class="bg-gray-50 p-3 rounded-lg">
+                                <div class="bg-gray-50 p-4 rounded-lg shadow-sm">
                                     <div class="text-sm font-medium text-gray-600">Recall</div>
-                                    <div class="text-lg font-bold text-gray-900">94.55%</div>
+                                    <div class="text-lg font-bold text-gray-900">96.41%</div>
                                     <div class="text-xs text-gray-500">Sensitivity</div>
                                 </div>
-                                <div class="bg-gray-50 p-3 rounded-lg">
+                                <div class="bg-gray-50 p-4 rounded-lg shadow-sm">
                                     <div class="text-sm font-medium text-gray-600">Specificity</div>
-                                    <div class="text-lg font-bold text-gray-900">94.02%</div>
+                                    <div class="text-lg font-bold text-gray-900">94.87%</div>
                                     <div class="text-xs text-gray-500">True negative rate</div>
                                 </div>
                             </div>
-                            <div class="mt-4 text-sm text-gray-600">
-                                <p class="mb-2">Model Architecture: EfficientNet B0</p>
-                                <ul class="list-disc pl-5 text-gray-500">
-                                    <li>Pre-trained on ImageNet dataset</li>
-                                    <li>Validation Accuracy: 100%, AUC: 98.38%</li>
-                                    <li>Training Loss: 0.073, Training Accuracy: 97.64%</li>
+                            <div class="mt-6 text-gray-600">
+                                <h3 class="mb-3 text-blue-800">肺炎預測模型: Essembled EfficientNetB0 and Vision Transformer with pre-trained weights</h3>
+                                <ul class="list-disc pl-5 space-y-1 text-gray-500 text-sm ">
+                                    <li>EfficientNetB0: torchvision.models.efficientnet.EfficientNet</li>
+                                    <li>Vision Transformer: Hugging Face Vision Transformer ("google/vit-base-patch16-224")</li>
+                                    <li>Input image size: 224x224</li>
                                 </ul>
                             </div>
+                            <!-- autoencoder section -->
+                            <div class="mt-6 text-gray-600">
+                                <h3 class="mb-3  text-blue-800">使用Autoencoder模型篩選影像是否為胸腔X光影像</h3>
+                            </div>
+
                             <!-- confusion matrix and ROC curve images in 2 columns -->
-                            <div class="grid grid-cols-2 gap-4 mt-4">
+                            <div class="grid grid-cols-2 gap-6 mt-6">
                                 <div>
                                     <h3 class="text-sm font-medium text-gray-600 mb-2">Confusion Matrix</h3>
                                     <img src="/static/images/cm.png" alt="Confusion Matrix" class="w-full rounded-lg shadow-md">
@@ -138,7 +150,6 @@
                                     <h3 class="text-sm font-medium text-gray-600 mb-2">ROC Curve</h3>
                                     <img src="static/images/roc.png" alt="ROC Curve" class="w-full rounded-lg shadow-md">
                                 </div>
-
                             </div>
                         </div>
                     </div>
