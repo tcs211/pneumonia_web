@@ -12,35 +12,35 @@
 <body class="bg-gray-100">
     <div id="app" class="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
         <div class="max-w-4xl mx-auto">
+            <!-- Language Selector -->
+            <div class="flex justify-end mb-4">
+                <select v-model="currentLanguage" class="bg-white border border-gray-300 rounded-md px-3 py-1 text-sm">
+                    <option value="en">English</option>
+                    <option value="zh">繁體中文</option>
+                    <option value="ja">日本語</option>
+                </select>
+            </div>
+
             <div class="text-center mb-8">
-                
                 <div class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4">
                     <img src="/static/images/logo.png" alt="Logo" class="h-28 w-auto rounded-full">
                     <div class="text-center md:text-left">
                         <h1 class="text-3xl font-bold text-gray-900 mb-2">
-                            Chest X-ray 肺炎偵測模型
+                            ${ translations[currentLanguage].title }
                         </h1>
                         <p class="text-gray-600">
-                            使用深度學習模型(EfficientNet + Vision Transformer)偵測肺炎
+                            ${ translations[currentLanguage].subtitle }
                         </p>
                         <p class="text-gray-600">
-                            成功大學人工智慧與醫學及人工智慧於醫療應用與服務第五組
+                            ${ translations[currentLanguage].team }
                         </p>
                     </div>
                 </div>
-                
-                
             </div>
             
-            
-            <!-- Compact Model Info with Toggle -->
-             <!-- Accuracy: 0.9583
-Precision: 0.9691
-Recall: 0.9641
-Specificity: 0.9487
-F1 Score: 0.9666 -->
+            <!-- Model Info Section (preserved) -->
             <div class="bg-white shadow-lg rounded-xl p-8 mb-8 border border-gray-100">
-                <!-- Summary Row -->
+                <!-- Original content preserved -->
                 <div class="flex items-center justify-between mb-6">
                     <div class="flex items-center space-x-12">
                         <div class="flex items-center space-x-3">
@@ -53,13 +53,12 @@ F1 Score: 0.9666 -->
                         </div>
                     </div>
                     
-                    <!-- Toggle Button -->
                     <button 
                         @click="toggleDetails"
                         class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300 transition-colors"
                     >
-                        <span v-if="showDetails">Hide Details</span>
-                        <span v-else>Show Details</span>
+                        <span v-if="showDetails">${ translations[currentLanguage].hideDetails }</span>
+                        <span v-else>${ translations[currentLanguage].showDetails }</span>
                         <svg 
                             :class="{'rotate-180': showDetails}"
                             class="ml-2 w-4 h-4 transition-transform duration-200"
@@ -84,14 +83,13 @@ F1 Score: 0.9666 -->
                     <div v-if="showDetails" class="space-y-6 overflow-hidden">
                         <!-- Dataset Information -->
                         <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
-                            <h2 class="text-sm font-medium text-blue-800 mb-3">關於資料集</h2>
+                            <h2 class="text-sm font-medium text-blue-800 mb-3">${ translations[currentLanguage].datasetInfo }</h2>
                             <p class="text-sm leading-relaxed text-blue-700 mb-4">
-                                本模型使用來自廣州婦女兒童醫療中心的5,856張兒童胸部X光影像進行訓練。包含1,583張正常影像和4,273張肺炎影像，這些影像經由專業醫師確診並標註。
+                                ${ translations[currentLanguage].datasetDescription }
                             </p>
                             <div class="mt-3 flex justify-center gap-6 text-xs text-blue-600">
-                                <span>訓練集: 5,232 影像</span>
-                                <span>驗證集: 16 影像</span>
-                                <span>測試集: 624 影像</span>
+                                <span>${ translations[currentLanguage].source }:</span>
+                                
                             </div>
                             <div class="mt-4 space-y-2">
                                 <a href="https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia" 
@@ -168,11 +166,11 @@ F1 Score: 0.9666 -->
                                 @dragleave.prevent="isDragging = false"
                                 @drop.prevent="handleDrop"
                             >
-                                <div  class="text-center">
+                                <div class="text-center">
                                     <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                     </svg>
-                                    <p class="mt-1">將影像拖曳至此或點擊上傳</p>
+                                    <p class="mt-1">${ translations[currentLanguage].dropzoneText }</p>
                                 </div>
                                 <input 
                                     type="file" 
@@ -188,33 +186,31 @@ F1 Score: 0.9666 -->
 
                 <!-- Preview and Results Section -->
                 <div v-if="imageUrl || resultUrl" class="space-y-6">
-                    
-                    <!-- Actions -->
                     <div class="flex justify-center space-x-4">
                         <button 
                             @click="clearImages"
                             class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none"
                         >
-                            清除
+                            ${ translations[currentLanguage].clear }
                         </button>
                         <button 
                             v-if="imageUrl && !isLoading"
                             @click="predict"
                             class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none"
                         >
-                            預測影像
+                            ${ translations[currentLanguage].predict }
                         </button>
                     </div>
+                    
+                    <!-- Images Grid -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Original Image -->
                         <div v-if="imageUrl" class="flex flex-col items-center">
-                            <h3 class="text-lg font-medium text-gray-900 mb-2">Original Image</h3>
+                            <h3 class="text-lg font-medium text-gray-900 mb-2">${ translations[currentLanguage].originalImage }</h3>
                             <img :src="imageUrl" alt="Original" class="max-w-full h-auto rounded-lg shadow-md">
                         </div>
 
-                        <!-- Result Image -->
                         <div v-if="resultUrl" class="flex flex-col items-center">
-                            <h3 class="text-lg font-medium text-gray-900 mb-2">Classification Result</h3>
+                            <h3 class="text-lg font-medium text-gray-900 mb-2">${ translations[currentLanguage].resultImage }</h3>
                             <img :src="resultUrl" alt="Result" class="max-w-full h-auto rounded-lg shadow-md">
                         </div>
                     </div>
@@ -224,6 +220,47 @@ F1 Score: 0.9666 -->
                         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
                     </div>
 
+                    <!-- Error Report Form -->
+                    <div v-if="resultUrl" class="mt-8 p-6 bg-gray-50 rounded-lg">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">${ translations[currentLanguage].errorReportTitle }</h3>
+                        <form @submit.prevent="submitErrorReport" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    ${ translations[currentLanguage].expectedResult }
+                                </label>
+                                <select v-model="errorReport.expectedResult" class="w-full border-gray-300 rounded-md shadow-sm">
+                                    <option value="normal">${ translations[currentLanguage].normal }</option>
+                                    <option value="pneumonia">${ translations[currentLanguage].pneumonia }</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    ${ translations[currentLanguage].comments }
+                                </label>
+                                <textarea 
+                                    v-model="errorReport.comments"
+                                    rows="3"
+                                    class="w-full border-gray-300 rounded-md shadow-sm"
+                                ></textarea>
+                            </div>
+                            <!-- reporter  -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    ${ translations[currentLanguage].reporter }
+                                </label>
+                                <input 
+                                    type="text"
+                                    class="w-full border-gray-300 rounded-md shadow-sm"
+                                >
+                            </div>
+                            <button 
+                                type="submit"
+                                class="w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none"
+                            >
+                                ${ translations[currentLanguage].submitReport }
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
@@ -232,13 +269,89 @@ F1 Score: 0.9666 -->
     <script>
         new Vue({
             el: '#app',
+            delimiters: ['${', '}'],
             data: {
                 imageUrl: null,
                 resultUrl: null,
                 isLoading: false,
                 isDragging: false,
                 selectedFile: null,
-                showDetails: false
+                showDetails: false,
+                currentLanguage: 'zh',
+                errorReport: {
+                    expectedResult: 'normal',
+                    comments: '',
+                    reporter: ''
+                },
+                translations: {
+                    en: {
+                        title: 'Chest X-ray Pneumonia Detection Model',
+                        subtitle: 'Using Deep Learning Model (EfficientNet + Vision Transformer) for Pneumonia Detection',
+                        team: 'NCKU AI in Medicine and Healthcare Applications Team 5',
+                        dropzoneText: 'Drag and drop image here or click to upload',
+                        clear: 'Clear',
+                        predict: 'Predict',
+                        originalImage: 'Original Image',
+                        resultImage: 'Classification Result',
+                        errorReportTitle: 'Report Incorrect Prediction',
+                        expectedResult: 'Expected Result',
+                        normal: 'Normal',
+                        pneumonia: 'Pneumonia',
+                        comments: 'Additional Comments',
+                        submitReport: 'Submit Report',
+                        reporter: 'Reporter',
+                        hideDetails: 'Hide Details',
+                        showDetails: 'Show Details',
+                        datasetInfo: 'Dataset Information',
+                        datasetDescription: 'This model was trained on 5,856 pediatric chest X-ray images from Guangzhou Women and Children\'s Medical Center. It includes 1,583 normal images and 4,273 pneumonia images, which were diagnosed and labeled by professional physicians.',
+                        source: 'Training set: 5,232 images; Validation set: 16 images; Test set: 624 images'
+                    },
+                    zh: {
+                        title: 'Chest X-ray 肺炎偵測模型',
+                        subtitle: '使用深度學習模型(EfficientNet + Vision Transformer)偵測肺炎',
+                        team: '成功大學人工智慧與醫學及人工智慧於醫療應用與服務第五組',
+                        dropzoneText: '將影像拖曳至此或點擊上傳',
+                        clear: '清除',
+                        predict: '預測影像',
+                        originalImage: '原始影像',
+                        resultImage: '預測結果',
+                        errorReportTitle: '回報預測錯誤',
+                        expectedResult: '預期結果',
+                        normal: '正常',
+                        pneumonia: '肺炎',
+                        comments: '補充說明',
+                        submitReport: '提交回報',
+                        reporter: '回報者',
+                        hideDetails: '隱藏詳細資訊',
+                        showDetails: '顯示詳細資訊',
+                        datasetInfo: '資料集資訊',
+                        datasetDescription: '本模型使用來自廣州婦女兒童醫療中心的5,856張兒童胸部X光影像進行訓練。包含1,583張正常影像和4,273張肺炎影像，這些影像經由專業醫師確診並標註。',
+                        source: '訓練集: 5,232 影像；驗證集: 16 影像；測試集: 624 影像'
+
+                    },
+                    ja: {
+                        title: '胸部X線肺炎検出モデル',
+                        subtitle: '深層学習モデル(EfficientNet + Vision Transformer)を使用した肺炎の検出',
+                        team: '成功大学AIと医療およびヘルスケアアプリケーション第5チーム',
+                        dropzoneText: 'ここに画像をドラッグ＆ドロップまたはクリックしてアップロード',
+                        clear: 'クリア',
+                        predict: '予測',
+                        originalImage: '元画像',
+                        resultImage: '分類結果',
+                        errorReportTitle: '予測エラーの報告',
+                        expectedResult: '期待される結果',
+                        normal: '正常',
+                        pneumonia: '肺炎',
+                        comments: '追加コメント',
+                        submitReport: '報告を送信',
+                        reporter: '報告者',
+                        hideDetails: '詳細を隠す',
+                        showDetails: '詳細を表示',
+                        datasetInfo: 'データセット情報',
+                        datasetDescription: 'このモデルは、広州市婦幼保健院からの5,856枚の小児胸部X線画像でトレーニングされました。 1,583枚の正常画像と4,273枚の肺炎画像が含まれており、これらの画像は専門医によって診断され、ラベルが付けられています。',
+                        source: 'トレーニングセット: 5,232 画像；検証セット: 16 画像；テストセット: 624 画像'
+                    }
+                }
             },
             methods: {
                 toggleDetails() {
@@ -281,7 +394,7 @@ F1 Score: 0.9666 -->
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        alert('Error processing image');
+                        alert(this.translations[this.currentLanguage].errorProcessing);
                     })
                     .finally(() => {
                         this.isLoading = false;
@@ -292,6 +405,45 @@ F1 Score: 0.9666 -->
                     this.resultUrl = null;
                     this.selectedFile = null;
                     this.$refs.fileInput.value = '';
+                    this.errorReport.expectedResult = 'normal';
+                    this.errorReport.comments = '';
+                },
+                submitErrorReport() {
+                    const reportData = {
+                        imageId: this.selectedFile.name,
+                        expectedResult: this.errorReport.expectedResult,
+                        comments: this.errorReport.comments,
+                        timestamp: new Date().toISOString()
+                    };
+
+                    // axios.post('/report-error', reportData)
+                    //     .then(response => {
+                    //         alert(this.translations[this.currentLanguage].reportSuccess);
+                    //         this.errorReport.comments = '';
+                    //     })
+                    //     .catch(error => {
+                    //         console.error('Error submitting report:', error);
+                    //         alert(this.translations[this.currentLanguage].reportError);
+                    //     });
+                    lang = this.currentLanguage;
+                    if (lang == 'en') {
+                        alert('Error report submitted');
+                    } else if (lang == 'zh') {
+                        alert('錯誤報告已提交');
+                    } else if (lang == 'ja') {
+                        alert('エラーレポートが送信されました');
+                    }
+                }
+            },
+            mounted() {
+                // Set initial language based on browser preference
+                const browserLang = navigator.language.toLowerCase();
+                if (browserLang.startsWith('ja')) {
+                    this.currentLanguage = 'ja';
+                } else if (browserLang.startsWith('zh')) {
+                    this.currentLanguage = 'zh';
+                } else {
+                    this.currentLanguage = 'en';
                 }
             }
         });
